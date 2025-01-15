@@ -3,8 +3,8 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const toolRoutes = require('./src/routes/toolRoutes');
-const userRoutes = require('./src/routes/userRoutes');
+const toolRoutes = require('./routes/toolRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config();
 
