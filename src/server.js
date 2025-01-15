@@ -10,8 +10,8 @@ dotenv.config();
 
 const app = express();
 
-// Configura o Express para confiar em proxies
-app.set('trust proxy', true);
+// Configura o Express para confiar em apenas um nível de proxy
+app.set('trust proxy', 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
