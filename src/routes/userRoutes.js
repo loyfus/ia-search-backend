@@ -2,6 +2,8 @@ const express = require('express');
 const User = require('../models/User');
 const { generateToken } = require('../utils/auth');
 const { body, validationResult } = require('express-validator');
+const authMiddleware = require('../middlewares/authMiddleware');
+const adminMiddleware = require('../middlewares/adminMiddleware');
 const router = express.Router();
 
 // Rota para registrar um usuário comum
@@ -44,6 +46,16 @@ router.post('/login', async (req, res) => {
 
     const token = generateToken(user._id);
     res.json({ message: 'Login bem-sucedido', token, user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Listar todos os usuários (somente ADMIN)
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json({ users }); // Retorne um objeto com a chave "users"
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

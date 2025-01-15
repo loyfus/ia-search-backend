@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const toolRoutes = require('./routes/toolRoutes');
 const userRoutes = require('./routes/userRoutes');
+const adRoutes = require('./routes/adRoutes'); // Importe as rotas de anúncios
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.get('/', (req, res) => {
 // Rotas da API
 app.use('/api/tools', toolRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/ads', adRoutes); // Adicione as rotas de anúncios
 
 // Inicia o servidor
 const PORT = process.env.PORT || 3000;

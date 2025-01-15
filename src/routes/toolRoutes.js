@@ -14,19 +14,18 @@ router.get('/', async (req, res) => {
   if (category) filters.categories = category;
   if (status) filters.status = status;
   if (q) {
-    // Adiciona filtro de busca por nome ou categoria
     filters.$or = [
-      { name: { $regex: q, $options: 'i' } }, // Busca por nome (case-insensitive)
-      { categories: { $in: [q] } }, // Busca por categoria
+      { name: { $regex: q, $options: 'i' } },
+      { categories: { $in: [q] } },
     ];
   }
 
   try {
     const tools = await Tool.find(filters)
-      .skip((page - 1) * limit) // Pula os documentos anteriores
-      .limit(limit); // Limita o número de resultados
+      .skip((page - 1) * limit)
+      .limit(limit);
 
-    const total = await Tool.countDocuments(filters); // Total de ferramentas que correspondem aos filtros
+    const total = await Tool.countDocuments(filters);
 
     res.json({
       tools,
@@ -46,32 +45,32 @@ router.post(
     body('name').notEmpty().withMessage('Nome é obrigatório'),
     body('description').notEmpty().withMessage('Descrição é obrigatória'),
     body('link').isURL().withMessage('Link inválido'),
-    body('icon').optional().isURL().withMessage('Ícone deve ser uma URL válida'), // Validação do ícone
+    body('icon').optional().isURL().withMessage('Ícone deve ser uma URL válida'),
   ],
   authMiddleware,
   adminMiddleware,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() }); // Retorna erros de validação
+      return res.status(400).json({ errors: errors.array() });
     }
 
     try {
       const tool = new Tool(req.body);
       const savedTool = await tool.save();
-      res.status(201).json(savedTool); // Retorna a ferramenta salva
+      res.status(201).json(savedTool);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
   }
 );
 
-// Aprovar uma ferramenta (protegida, somente ADMIN)
-router.put('/:id/approve', authMiddleware, adminMiddleware, async (req, res) => {
+// Atualizar o status de uma ferramenta (protegida, somente ADMIN)
+router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const tool = await Tool.findByIdAndUpdate(
       req.params.id,
-      { status: 'approved' },
+      { status: req.body.status },
       { new: true }
     );
 
@@ -80,28 +79,6 @@ router.put('/:id/approve', authMiddleware, adminMiddleware, async (req, res) => 
     }
 
     res.json(tool);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Listar ferramentas pendentes (protegida, somente ADMIN)
-router.get('/pending', authMiddleware, adminMiddleware, async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-
-  try {
-    const tools = await Tool.find({ status: 'pending' })
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    const total = await Tool.countDocuments({ status: 'pending' });
-
-    res.json({
-      tools,
-      total,
-      page: Number(page),
-      totalPages: Math.ceil(total / limit),
-    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
