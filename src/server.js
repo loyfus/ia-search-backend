@@ -14,6 +14,7 @@ const app = express();
 // Configura o Express para confiar em apenas um nível de proxy
 app.set('trust proxy', 1);
 
+// Configuração do CORS
 const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = ['http://localhost:3000', 'https://loyfus.com', 'https://www.loyfus.com'];
@@ -27,8 +28,10 @@ const corsOptions = {
   allowedHeaders: 'Content-Type,Authorization',
 };
 
+// Aplica o CORS com as opções configuradas
 app.use(cors(corsOptions));
 
+// Configuração do rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -38,14 +41,15 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Middlewares
-app.use(cors());
 app.use(express.json());
 
+// Conexão com o MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log('Conectado ao MongoDB'))
   .catch((err) => console.error('Erro ao conectar ao MongoDB:', err));
 
+// Rota de teste
 app.get('/', (req, res) => {
   res.send('Backend da Loyfus IA Search está funcionando!');
 });
