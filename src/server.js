@@ -16,7 +16,7 @@ app.set('trust proxy', 1);
 
 const corsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = ['http://localhost:3000', 'https://loyfus.com'];
+    const allowedOrigins = ['http://localhost:3000', 'https://loyfus.com', 'https://www.loyfus.com'];
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
     } else {
