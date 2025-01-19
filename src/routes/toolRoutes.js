@@ -4,7 +4,7 @@ const Tool = require('../models/Tool');
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const router = express.Router();
-const { searchTools } = require('../search');
+const { searchTools } = require('../utils/search');
 
 
 router.get('/', async (req, res) => {
