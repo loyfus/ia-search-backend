@@ -1,5 +1,5 @@
 const { Client } = require('@elastic/elasticsearch');
-const client = new Client({ node: process.env.API_BASE_URL });
+const client = new Client({ node: 'https://ia-search-backend.vercel.app/' });
 
 const indexTool = async (tool) => {
   await client.index({
