@@ -1,5 +1,5 @@
 const { Client } = require('@elastic/elasticsearch');
-const client = new Client({ node: 'http://localhost:9200' });
+const client = new Client({ node: process.env.API_BASE_URL });
 
 const indexTool = async (tool) => {
   await client.index({
@@ -15,7 +15,8 @@ const searchTools = async (query) => {
       query: {
         multi_match: {
           query: query,
-          fields: ['name', 'description', 'categories'],
+          fields: ['name^3', 'description^2', 'categories'],
+          fuzziness: 'AUTO',
         },
       },
     },

@@ -4,39 +4,50 @@ const Tool = require('../models/Tool');
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const router = express.Router();
+const { searchTools } = require('../search');
 
-// Buscar todas as ferramentas (pública) com paginação e filtros
+
 router.get('/', async (req, res) => {
   const { page = 1, limit = 10, category, status, q } = req.query;
-  const filters = {};
-
-  // Filtros
-  if (category) filters.categories = category;
-  if (status) filters.status = status;
-  if (q) {
-    filters.$or = [
-      { name: { $regex: q, $options: 'i' } },
-      { categories: { $in: [q] } },
-    ];
-  }
 
   try {
-    const tools = await Tool.find(filters)
-      .skip((page - 1) * limit)
-      .limit(limit);
+    if (q) {
+      const results = await searchTools(q);
 
-    const total = await Tool.countDocuments(filters);
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const paginatedResults = results.slice(startIndex, endIndex);
 
-    res.json({
-      tools,
-      total,
-      page: Number(page),
-      totalPages: Math.ceil(total / limit),
-    });
+      res.json({
+        tools: paginatedResults.map((hit) => hit._source), // Extrai os documentos do Elasticsearch
+        total: results.length,
+        page: Number(page),
+        totalPages: Math.ceil(results.length / limit),
+      });
+    } else {
+      const filters = {};
+
+      if (category) filters.categories = category;
+      if (status) filters.status = status;
+
+      const tools = await Tool.find(filters)
+        .skip((page - 1) * limit)
+        .limit(limit);
+
+      const total = await Tool.countDocuments(filters);
+
+      res.json({
+        tools,
+        total,
+        page: Number(page),
+        totalPages: Math.ceil(total / limit),
+      });
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // Adicionar uma nova ferramenta (protegida, somente ADMIN)
 router.post(
