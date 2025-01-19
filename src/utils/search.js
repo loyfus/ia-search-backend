@@ -15,8 +15,7 @@ const searchTools = async (query) => {
       query: {
         multi_match: {
           query: query,
-          fields: ['name^3', 'description^2', 'categories'],
-          fuzziness: 'AUTO',
+          fields: ['name', 'description', 'categories'],
         },
       },
     },

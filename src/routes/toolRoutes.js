@@ -6,7 +6,6 @@ const adminMiddleware = require('../middlewares/adminMiddleware');
 const router = express.Router();
 const { searchTools } = require('../utils/search');
 
-
 router.get('/', async (req, res) => {
   const { page = 1, limit = 10, category, status, q } = req.query;
 
